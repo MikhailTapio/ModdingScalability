@@ -1,19 +1,20 @@
-package committee.nova.scalability.functions
+package committee.nova.scalability
 
 import committee.nova.scalability.utils.Conversions.{convertCharInVarArgs => convert}
 import cpw.mods.fml.common.registry.GameRegistry.{addShapedRecipe => addShaped, addShapelessRecipe => addShapeless}
 import net.minecraft.item.ItemStack
 import net.minecraft.util.{ChatComponentText, ChatComponentTranslation}
 
-import scala.language.implicitConversions
-
-object FunctionCompat {
+/**
+ * The package provides some objects to provide extra functions for their same-name classes
+ */
+package object patch {
   object GameRegistry {
-    def addRecipe(output: ItemStack, params: Any*): Unit = addShapedRecipe(output, params)
+    def addRecipe(output: ItemStack, args: Any*): Unit = addShapedRecipe(output, args)
 
-    def addShapedRecipe(output: ItemStack, params: Any*): Unit = addShaped(output, convert(params: _*).toSeq: _*)
+    def addShapedRecipe(output: ItemStack, args: Any*): Unit = addShaped(output, convert(args: _*).toSeq: _*)
 
-    def addShapelessRecipe(output: ItemStack, params: Any*): Unit = addShapeless(output, convert(params: _*).toSeq: _*)
+    def addShapelessRecipe(output: ItemStack, args: Any*): Unit = addShapeless(output, convert(args: _*).toSeq: _*)
   }
 
   object IChatComponent {

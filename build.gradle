@@ -25,8 +25,8 @@ apply plugin: 'forge'
 apply plugin: 'idea'
 
 version = "${version}"
-group = "committee.nova.scalability" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "Scalability-Forge"
+group = "committee.nova.scalability"
+archivesBaseName = "Scalability-Forge-1.7.10"
 
 minecraft {
     version = "1.7.10-10.13.4.1614-1.7.10"

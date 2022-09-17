@@ -2,6 +2,9 @@ package committee.nova.scalability.implicits
 
 import java.util.function.{Consumer, Function, Predicate, Supplier}
 
+/**
+ * The package provides implicits to 4 common java function interfaces
+ */
 package object functions {
   implicit class FunctionImplicit[T, R](val f: T => R) extends Function[T, R] {
     override def apply(t: T): R = f.apply(t)
