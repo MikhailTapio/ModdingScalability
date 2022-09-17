@@ -17,6 +17,7 @@ import scala.language.implicitConversions
  */
 package object minecraft {
   implicit class WorldImplicit(val world: World) {
+    // TODO: Stuff about BlockPos 
     /**
      * Run a task serverside-only
      *

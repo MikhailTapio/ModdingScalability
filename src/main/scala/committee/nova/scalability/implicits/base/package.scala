@@ -8,5 +8,10 @@ package object base {
     def sq: Double = double * double
 
     def sqrt: Double = Math.sqrt(double)
+
+    def floor2Int: Int = {
+      val i = double.toInt
+      if (double < i.toDouble) i - 1 else i
+    }
   }
 }
