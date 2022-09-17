@@ -1,9 +1,13 @@
 package committee.nova.scalability.implicits
 
+import committee.nova.scalability.implicits.functions._
+import committee.nova.scalability.patch.AxisAlignedBB
+import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.monster.EntityMob
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.util.MathHelper
+import net.minecraft.util.{MathHelper, AxisAlignedBB => AABB}
 import net.minecraft.world.World
 
 import scala.language.implicitConversions
@@ -26,6 +30,36 @@ package object minecraft {
      * @param task The task to run
      */
     def runClientSide(task: World => Unit): Unit = if (world.isRemote) task.apply(world)
+  }
+
+  implicit class EntityLivingBaseImplicit(val living: EntityLivingBase) {
+    /**
+     * Check the amount of mobs targeting at the player
+     * If ran on the client-side, it will consistently return 0
+     *
+     * @param aabb The mobs in such AABB should be checked if their target is the player
+     * @return How many mobs in the AABB are targeting at the player
+     */
+    def isTargetedBy(aabb: AABB): Int = {
+      val raw = living.worldObj.getEntitiesWithinAABB(classOf[EntityMob], aabb)
+      if (raw.isEmpty) return 0
+      val list = raw.asInstanceOf[java.util.List[EntityMob]]
+      list.removeIf((e: EntityMob) => living != e.getAttackTarget)
+      list.size
+    }
+
+    /**
+     * Check the amount of mobs targeting at the player
+     * If ran on the client-side, it will consistently return 0
+     *
+     * @see isTargetedBy(aabb: AABB)
+     * @param range Half the length of the AABB's side
+     * @return How many mobs in the AABB are targeting at the player
+     */
+    def isTargetedBy(range: Int): Int = {
+      val center = living.getPosition(1.0F)
+      isTargetedBy(AxisAlignedBB(center.addVector(range, range, range), center.addVector(-range, -range, -range)))
+    }
   }
 
   implicit class EntityPlayerImplicit(val player: EntityPlayer) {
