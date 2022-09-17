@@ -1,6 +1,6 @@
 package committee.nova.scalability.functions
 
-import committee.nova.scalability.utils.Conversions.{convertCharInSeq => convert}
+import committee.nova.scalability.utils.Conversions.{convertCharInVarArgs => convert}
 import cpw.mods.fml.common.registry.GameRegistry.{addShapedRecipe => addShaped, addShapelessRecipe => addShapeless}
 import net.minecraft.item.ItemStack
 import net.minecraft.util.{ChatComponentText, ChatComponentTranslation}
