@@ -422,12 +422,12 @@ package object minecraft {
   }
 
   implicit class Vec3Implicit(val vec3: Vec3) {
-    def atCenterOf(vec3i: Vec3i): Vec3 = new Vec3(vec3i.getX.toDouble + 0.5D, vec3i.getY.toDouble + 0.5D, vec3i.getZ.toDouble + 0.5D)
+    def atCenterOf(vec3i: Vec3i): Vec3 = Vec3.createVectorHelper(vec3i.getX.toDouble + 0.5D, vec3i.getY.toDouble + 0.5D, vec3i.getZ.toDouble + 0.5D)
 
-    def atLowerCornerOf(vec3i: Vec3i): Vec3 = new Vec3(vec3i.getX.toDouble, vec3i.getY.toDouble, vec3i.getZ.toDouble)
+    def atLowerCornerOf(vec3i: Vec3i): Vec3 = Vec3.createVectorHelper(vec3i.getX.toDouble, vec3i.getY.toDouble, vec3i.getZ.toDouble)
 
-    def atBottomCenterOf(vec3i: Vec3i): Vec3 = new Vec3(vec3i.getX.toDouble + 0.5D, vec3i.getY.toDouble, vec3i.getZ.toDouble + 0.5D)
+    def atBottomCenterOf(vec3i: Vec3i): Vec3 = Vec3.createVectorHelper(vec3i.getX.toDouble + 0.5D, vec3i.getY.toDouble, vec3i.getZ.toDouble + 0.5D)
 
-    def upFromBottomCenterOf(vec3i: Vec3i, offset: Double) = new Vec3(vec3i.getX.toDouble + 0.5D, vec3i.getY.toDouble + offset, vec3i.getZ.toDouble + 0.5D)
+    def upFromBottomCenterOf(vec3i: Vec3i, offset: Double): Vec3 = Vec3.createVectorHelper(vec3i.getX.toDouble + 0.5D, vec3i.getY.toDouble + offset, vec3i.getZ.toDouble + 0.5D)
   }
 }

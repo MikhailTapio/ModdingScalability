@@ -13,7 +13,7 @@ package object functions {
     override def apply(t: T): R = f.apply(t)
   }
 
-  implicit class ConsumerImplicit[T](val c: T => ()) extends Consumer[T] {
+  implicit class ConsumerImplicit[T](val c: T => Unit) extends Consumer[T] {
     override def accept(t: T): Unit = c.apply(t)
   }
 

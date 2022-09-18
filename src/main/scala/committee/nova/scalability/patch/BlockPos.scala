@@ -137,8 +137,8 @@ class BlockPos(x: Int, y: Int, z: Int) extends Vec3i(x, y, z) {
     val k = maxZ - minZ + 1
     () => {
       new AbstractIterator[BlockPos]() {
-        final private[math] val pos = new BlockPos.this.Mutable
-        private[math] var remaining = count
+        final val pos = new BlockPos.this.Mutable
+        var remaining: Int = count
 
         override protected def computeNext: BlockPos = if (this.remaining <= 0) this.endOfData
         else {
