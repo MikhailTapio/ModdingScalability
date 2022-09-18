@@ -1,8 +1,8 @@
 package committee.nova.scalability.patch
 
 import committee.nova.scalability.implicits.base.DoubleImplicit
-import committee.nova.scalability.patch.Directions._
 import net.minecraft.util.Vec3
+import net.minecraftforge.common.util.ForgeDirection
 
 
 object Vec3i {
@@ -22,11 +22,20 @@ class Vec3i(private var x: Int, private var y: Int, private var z: Int) extends 
 
   def getZ: Int = z
 
-  def setX(x: Int): Unit = this.x = x
+  protected def setX(x: Int): Vec3i = {
+    this.x = x
+    this
+  }
 
-  def setY(y: Int): Unit = this.y = y
+  protected def setY(y: Int): Vec3i = {
+    this.y = y
+    this
+  }
 
-  def setZ(z: Int): Unit = this.z = z
+  protected def setZ(z: Int): Vec3i = {
+    this.z = z
+    this
+  }
 
   def add(dx: Double, dy: Double, dz: Double): Vec3i = if (dx == 0.0D && dy == 0.0D && dz == 0.0D) this else Vec3i(x.toDouble + dx, y.toDouble + dy, z.toDouble + dz)
 
@@ -40,32 +49,34 @@ class Vec3i(private var x: Int, private var y: Int, private var z: Int) extends 
 
   def multiply(scale: Int): Vec3i = if (scale == 1) this else Vec3i(x * scale, y * scale, z * scale)
 
-  def offset(direction: Direction, distance: Int): Vec3i = if (distance == 0) this
-  else Vec3i(x + direction.getOffsetX * distance, y + direction.getOffsetY * distance, z + direction.getOffsetZ * distance)
+  def cross(vec: Vec3i): Vec3i = Vec3i(y * vec.z - z * vec.y, z * vec.x - x * vec.z, x * vec.y - y * vec.x)
 
-  def offset(direction: Direction): Vec3i = offset(direction, 1)
+  def offset(direction: ForgeDirection, distance: Int): Vec3i = if (distance == 0) this
+  else Vec3i(x + direction.offsetX * distance, y + direction.offsetY * distance, z + direction.offsetZ * distance)
 
-  def down(distance: Int): Vec3i = offset(DOWN, distance)
+  def offset(direction: ForgeDirection): Vec3i = offset(direction, 1)
+
+  def down(distance: Int): Vec3i = offset(ForgeDirection.DOWN, distance)
 
   def down: Vec3i = down(1)
 
-  def up(distance: Int): Vec3i = offset(UP, distance)
+  def up(distance: Int): Vec3i = offset(ForgeDirection.UP, distance)
 
   def up: Vec3i = up(1)
 
-  def north(distance: Int): Vec3i = offset(NORTH, distance)
+  def north(distance: Int): Vec3i = offset(ForgeDirection.NORTH, distance)
 
   def north: Vec3i = north(1)
 
-  def south(distance: Int): Vec3i = offset(SOUTH, distance)
+  def south(distance: Int): Vec3i = offset(ForgeDirection.SOUTH, distance)
 
   def south: Vec3i = south(1)
 
-  def west(distance: Int): Vec3i = offset(WEST, distance)
+  def west(distance: Int): Vec3i = offset(ForgeDirection.WEST, distance)
 
   def west: Vec3i = west(1)
 
-  def east(distance: Int): Vec3i = offset(EAST, distance)
+  def east(distance: Int): Vec3i = offset(ForgeDirection.EAST, distance)
 
   def east: Vec3i = east(1)
 
@@ -79,13 +90,13 @@ class Vec3i(private var x: Int, private var y: Int, private var z: Int) extends 
 
   def distanceToSqr(vec3: Vec3): Double = centerDistanceToSqr(vec3.xCoord, vec3.yCoord, vec3.zCoord)
 
-  def isWithInDistance(x1: Double, y1: Double, z1: Double, distance: Double): Boolean = centerDistanceToSqr(x1, y1, z1) < distance.sq
+  def isWithinDistance(x1: Double, y1: Double, z1: Double, distance: Double): Boolean = centerDistanceToSqr(x1, y1, z1) < distance.sq
 
-  def isWithInDistance(x1: Int, y1: Int, z1: Int, distance: Double): Boolean = distanceToSqr(x1, y1, z1) < distance.sq
+  def isWithinDistance(x1: Int, y1: Int, z1: Int, distance: Double): Boolean = distanceToSqr(x1, y1, z1) < distance.sq
 
-  def isWithInDistance(another: Vec3i, distance: Double): Boolean = isWithInDistance(another.x, another.y, another.z, distance)
+  def isWithinDistance(another: Vec3i, distance: Double): Boolean = isWithinDistance(another.x, another.y, another.z, distance)
 
-  def isWithInDistance(vec3: Vec3, distance: Double): Boolean = isWithInDistance(vec3.xCoord, vec3.yCoord, vec3.zCoord, distance)
+  def isWithinDistance(vec3: Vec3, distance: Double): Boolean = isWithinDistance(vec3.xCoord, vec3.yCoord, vec3.zCoord, distance)
 
   def manhattanDistance(x1: Int, y1: Int, z1: Int): Int = (x1 - x).abs + (y1 - y).abs + (z1 - z).abs
 
