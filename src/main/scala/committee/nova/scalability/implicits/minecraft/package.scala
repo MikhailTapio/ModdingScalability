@@ -251,6 +251,52 @@ package object minecraft {
 
   }
 
+  implicit class EntityImplicit(val entity: Entity) {
+    def setPos(pos: Vec3): Unit = entity.setPosition(pos.xCoord, pos.yCoord, pos.zCoord)
+
+    def getPos: Vec3 = Vec3.createVectorHelper(entity.posX, entity.posY, entity.posZ)
+
+    def moveEntity(pos: Vec3): Unit = entity.moveEntity(pos.xCoord, pos.yCoord, pos.zCoord)
+
+    def getDeltaMovement: Vec3 = Vec3.createVectorHelper(entity.motionX, entity.motionY, entity.motionZ)
+
+    def setDeltaMovement(vel: Vec3): Unit = {
+      entity.motionX = vel.xCoord
+      entity.motionY = vel.yCoord
+      entity.motionZ = vel.zCoord
+    }
+
+    def addVelocity(vel: Vec3): Unit = entity.addVelocity(vel.xCoord, vel.yCoord, vel.zCoord)
+
+    def isOffsetPositionInLiquid(offset: Vec3): Boolean = entity.isOffsetPositionInLiquid(offset.xCoord, offset.yCoord, offset.zCoord)
+
+    def moveFlying(vel: Vec3): Unit = entity.moveFlying(vel.xCoord.toFloat, vel.yCoord.toFloat, vel.zCoord.toFloat)
+
+    def setPositionAndRotation(pos: Vec3, yaw: Float, pitch: Float): Unit = entity.setPositionAndRotation(pos.xCoord, pos.yCoord, pos.zCoord, yaw, pitch)
+
+    def setLocationAndAngles(pos: Vec3, yaw: Float, pitch: Float): Unit = entity.setLocationAndAngles(pos.xCoord, pos.yCoord, pos.zCoord, yaw, pitch)
+
+    def getDistanceSq(pos: Vec3): Double = entity.getDistanceSq(pos.xCoord, pos.yCoord, pos.zCoord)
+
+    def getDistance(pos: Vec3): Double = entity.getDistance(pos.xCoord, pos.yCoord, pos.zCoord)
+
+    @SideOnly(Side.CLIENT)
+    def setPositionAndRotation2(pos: Vec3, yaw: Float, pitch: Float, unused: Int): Unit =
+      entity.setPositionAndRotation2(pos.xCoord, pos.yCoord, pos.zCoord, yaw, pitch, unused)
+
+    @SideOnly(Side.CLIENT)
+    def setVelocity(vel: Vec3): Unit = entity.setVelocity(vel.xCoord, vel.yCoord, vel.zCoord)
+
+    @SideOnly(Side.CLIENT)
+    def isInRangeToRender3d(pos: Vec3): Boolean = entity.isInRangeToRender3d(pos.xCoord, pos.yCoord, pos.zCoord)
+
+    def getExplosionResistance(explosion: Explosion, world: World, pos: BlockPos, block: Block): Float =
+      entity.func_145772_a(explosion, world, pos.getX, pos.getY, pos.getZ, block)
+
+    def canExplosionAffectBlock(explosion: Explosion, world: World, pos: BlockPos, block: Block, strength: Float): Boolean =
+      entity.func_145774_a(explosion, world, pos.getX, pos.getY, pos.getZ, block, strength)
+  }
+
   implicit class EntityLivingBaseImplicit(val living: EntityLivingBase) {
     /**
      * Check the amount of mobs targeting at the player
@@ -276,7 +322,7 @@ package object minecraft {
      * @see EntityLivingBaseImplicit#isTargetedBy(aabb: AABB)
      */
     def isTargetedBy(range: Int): Int = {
-      val center = living.getPosition(1.0F)
+      val center = living.getPos
       isTargetedBy(AxisAlignedBB(center.addVector(range, range, range), center.addVector(-range, -range, -range)))
     }
   }
