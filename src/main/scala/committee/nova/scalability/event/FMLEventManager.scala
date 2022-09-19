@@ -5,6 +5,8 @@ import cpw.mods.fml.common.FMLCommonHandler
 import cpw.mods.fml.common.eventhandler.SubscribeEvent
 import cpw.mods.fml.common.gameevent.TickEvent.{Phase, PlayerTickEvent}
 
+import scala.util.control.Breaks.{break, breakable}
+
 object FMLEventManager {
   def init(): Unit = FMLCommonHandler.instance().bus().register(new FMLEventManager)
 }
@@ -16,11 +18,13 @@ class FMLEventManager {
     val player = event.player
     val inventory = player.inventory.mainInventory
     for (index <- inventory.indices) {
-      val stack = inventory(index)
-      if (stack == null) return
-      stack.getItem match {
-        case tickable: IItemTickable => tickable.tick(stack, player, index)
-        case _ =>
+      breakable {
+        val stack = inventory(index)
+        if (stack == null) break()
+        stack.getItem match {
+          case tickable: IItemTickable => tickable.tick(stack, player, index)
+          case _ =>
+        }
       }
     }
   }
