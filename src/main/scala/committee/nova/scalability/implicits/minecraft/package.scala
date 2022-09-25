@@ -8,7 +8,8 @@ import net.minecraft.command.IEntitySelector
 import net.minecraft.entity.monster.EntityMob
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.{Entity, EntityLivingBase}
-import net.minecraft.item.ItemStack
+import net.minecraft.init.Blocks
+import net.minecraft.item.{Item, ItemStack}
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.pathfinding.PathEntity
 import net.minecraft.tileentity.TileEntity
@@ -16,6 +17,7 @@ import net.minecraft.util.{MathHelper, Vec3, AxisAlignedBB => AABB}
 import net.minecraft.world.chunk.Chunk
 import net.minecraft.world.{ChunkPosition, EnumSkyBlock, Explosion, World}
 import net.minecraftforge.common.util.ForgeDirection
+import net.minecraftforge.oredict.OreDictionary
 
 import java.util.{List => JList}
 import scala.language.implicitConversions
@@ -26,20 +28,19 @@ import scala.util.Try
  */
 package object minecraft {
   implicit class WorldImplicit(val world: World) {
-    // TODO: Stuff about BlockPos 
     /**
      * Run a task serverside-only
      *
      * @param task The task to run
      */
-    def runServerSide(task: World => Unit): Unit = if (!world.isRemote) task.apply(world)
+    def runServerSide(task: World => Unit): Unit = if (!world.isRemote) task(world)
 
     /**
      * Run a task clientside-only
      *
      * @param task The task to run
      */
-    def runClientSide(task: World => Unit): Unit = if (world.isRemote) task.apply(world)
+    def runClientSide(task: World => Unit): Unit = if (world.isRemote) task(world)
 
     /**
      * BlockPos param version of getTopBlock
@@ -149,7 +150,7 @@ package object minecraft {
     def extinguishFire(player: EntityPlayer, pos: BlockPos, direction: ForgeDirection): Boolean = world.extinguishFire(player,
       pos.getX, pos.getY, pos.getZ, direction.ordinal())
 
-    def getTileEntity(pos: BlockPos): Option[TileEntity] = Option.apply(world.getTileEntity(pos.getX, pos.getY, pos.getZ))
+    def getTileEntity(pos: BlockPos): Option[TileEntity] = Option(world.getTileEntity(pos.getX, pos.getY, pos.getZ))
 
     def setTileEntity(pos: BlockPos, tile: TileEntity): Unit = world.setTileEntity(pos.getX, pos.getY, pos.getZ, tile)
 
@@ -204,10 +205,10 @@ package object minecraft {
     def getStrongestIndirectPower(pos: BlockPos): Int = world.getStrongestIndirectPower(pos.getX, pos.getY, pos.getZ)
 
     def getClosestPlayer(vec3: Vec3, distance: Double): Option[EntityPlayer] =
-      Option.apply(world.getClosestPlayer(vec3.xCoord, vec3.yCoord, vec3.zCoord, distance))
+      Option(world.getClosestPlayer(vec3.xCoord, vec3.yCoord, vec3.zCoord, distance))
 
     def getClosestVulnerablePlayer(vec3: Vec3, distance: Double): Option[EntityPlayer] =
-      Option.apply(world.getClosestVulnerablePlayer(vec3.xCoord, vec3.yCoord, vec3.zCoord, distance))
+      Option(world.getClosestVulnerablePlayer(vec3.xCoord, vec3.yCoord, vec3.zCoord, distance))
 
     def setSpawnLocation(pos: BlockPos): Unit = world.setSpawnLocation(pos.getX, pos.getY, pos.getZ)
 
@@ -228,7 +229,7 @@ package object minecraft {
       world.playAuxSFXAtEntity(player, eventType, pos.getX, pos.getY, pos.getZ, eventData)
 
     def findClosestStructure(structureId: String, pos: BlockPos): Option[ChunkPosition] =
-      Option.apply(world.findClosestStructure(structureId, pos.getX, pos.getY, pos.getZ))
+      Option(world.findClosestStructure(structureId, pos.getX, pos.getY, pos.getZ))
 
     def destroyBlockInWorldPartially(entityId: Int, pos: BlockPos, progress: Int): Unit =
       world.destroyBlockInWorldPartially(entityId, pos.getX, pos.getY, pos.getZ, progress)
@@ -247,7 +248,6 @@ package object minecraft {
     def isSideSolid(pos: BlockPos, side: ForgeDirection, default: Boolean): Boolean = world.isSideSolid(pos.getX, pos.getY, pos.getZ, side, default)
 
     def getBlockLightOpacity(pos: BlockPos): Int = world.getBlockLightOpacity(pos.getX, pos.getY, pos.getZ)
-
 
   }
 
@@ -338,14 +338,14 @@ package object minecraft {
      *
      * @param task The task to run
      */
-    def runServerSide(task: EntityPlayer => Unit): Unit = if (!player.isRemote) task.apply(player)
+    def runServerSide(task: EntityPlayer => Unit): Unit = if (!player.isRemote) task(player)
 
     /**
      * Run a task clientside-only
      *
      * @param task The task to run
      */
-    def runClientSide(task: EntityPlayer => Unit): Unit = if (player.isRemote) task.apply(player)
+    def runClientSide(task: EntityPlayer => Unit): Unit = if (player.isRemote) task(player)
 
     /**
      * Change an integer in the player's entity data
@@ -367,6 +367,30 @@ package object minecraft {
   }
 
   implicit class ItemStackImplicit(val stack: ItemStack) {
+    /**
+     * Determine if the item in the stack is the same as the one in the parameter
+     *
+     * @param that The item to compare
+     * @return If that item in the parameter is the same as the one in the stack
+     */
+    def is(that: Item): Boolean = stack.getItem.is(that)
+
+    /**
+     * Determine if the item in the stack is contained by the ore dictionary in the parameter
+     *
+     * @param oreDict The ore dictionary's name
+     * @return If the ore dictionary contains the item in the stack
+     */
+    def isIn(oreDict: String): Boolean = stack.getItem.isIn(oreDict)
+
+    /**
+     * Returns the Option value of block corresponding to the stack if there's one.
+     * If there's no, returns None
+     *
+     * @return The Option value of block corresponding to the stack
+     */
+    def getBlock: Option[Block] = stack.getItem.getBlock
+
     /**
      * Return the stack's nbt tag;
      * If it's null, set it to be an new one and return
@@ -397,6 +421,59 @@ package object minecraft {
     def tickInt(tagName: String, delta: Int, min: Int, max: Int): Unit = tickInt(tagName, i => MathHelper.clamp_int(i + delta, min, max))
   }
 
+  implicit class ItemImplicit(val item: Item) {
+    /**
+     * Determine if this item is the same as the one in the parameter
+     *
+     * @param that The item to compare
+     * @return If that item in the parameter is the same as this one
+     */
+    def is(that: Item): Boolean = that == item
+
+    /**
+     * Determine if this item is contained by the ore dictionary in the parameter
+     *
+     * @param oreDict The ore dictionary's name
+     * @return If the ore dictionary contains the item
+     */
+    def isIn(oreDict: String): Boolean = {
+      OreDictionary.getOres(oreDict).forEach((that: ItemStack) => if (item == that.getItem) return true)
+      false
+    }
+
+    /**
+     * Returns the Option value of block corresponding to the item if there's one.
+     * If there's no, returns None
+     *
+     * @return The Option value of block corresponding to the item
+     */
+    def getBlock: Option[Block] = {
+      val raw = Block.getBlockFromItem(item)
+      if (raw != Blocks.air) Some(raw) else None
+    }
+  }
+
+  implicit class BlockImplicit(val block: Block) {
+    /**
+     * Determine if this block is the same as the one in the parameter
+     *
+     * @param that The block to compare
+     * @return If that block in the parameter is the same as this one
+     */
+    def is(that: Block): Boolean = block == that
+
+    /**
+     * Determine if this block is contained by the ore dictionary in the parameter
+     *
+     * @param oreDict The ore dictionary's name
+     * @return If the ore dictionary contains the block
+     */
+    def isIn(oreDict: String): Boolean = {
+      OreDictionary.getOres(oreDict).forEach((stack: ItemStack) => if (block == stack.getBlock.orNull) return true)
+      false
+    }
+  }
+
   implicit class NBTTagCompoundImplicit(val tag: NBTTagCompound) {
     /**
      * Change an integer in the tag
@@ -406,7 +483,7 @@ package object minecraft {
      */
     def tickInt(tagName: String, int2Int: Int => Int): Unit = {
       val oldValue = tag.getInteger(tagName)
-      val newValue = int2Int.apply(oldValue)
+      val newValue = int2Int(oldValue)
       if (oldValue != newValue) tag.setInteger(tagName, newValue)
     }
 
